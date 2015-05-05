@@ -3,7 +3,7 @@ from sql2py.sql_parser import parse_select_query
 
 
 class SimpleSelectsTestCase(unittest.TestCase):
-    
+
     def test_very_basic_select(self):
         parsed = parse_select_query("select col1, col2 from tab1")
 

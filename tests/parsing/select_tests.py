@@ -25,6 +25,16 @@ class SimpleSelectsTestCase(unittest.TestCase):
         self.assertEqual(len(parsed.columns), 1)
         self.assertEqual(parsed.table_name, "tab_a")
 
+    def test_limit_condition_only_limit_given(self):
+        parsed = parse_select_query("select col1 from tab1 limit 15")
+
+        self.assertEqual(parsed.rows_limit, 15)
+
+    def test_limit_condition_both_offset_and_limit_given(self):
+        parsed = parse_select_query("select col1 from tab1 limit 1, 5")
+
+        self.assertEqual(parsed.rows_limit, 5)
+        self.assertEqual(parsed.offset, 1)
 
 if __name__ == '__main__':
     unittest.main()

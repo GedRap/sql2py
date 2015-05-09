@@ -8,9 +8,9 @@ def parse_select_query(query):
     select_keyword_token = Keyword("select", caseless=True)
     from_keyword_token = Keyword("from", caseless=True)
 
-    identifier_token = Word(alphas, alphanums).setName("identifier")
+    identifier_token = Word(alphanums + "_").setName("identifier")
     column_name_tokens = Group(delimitedList(identifier_token, ","))
-    table_name_token = Word(alphas, alphanums).setName("table_name")
+    table_name_token = Word(alphanums + "_").setName("table_name")
 
     select_grammar << (select_keyword_token + ('*' | column_name_tokens).setResultsName("columns")\
                      + from_keyword_token + table_name_token.setResultsName("table"))

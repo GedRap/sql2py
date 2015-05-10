@@ -11,6 +11,7 @@ class SimpleSelectsTestCase(unittest.TestCase):
         self.assertEqual(parsed.columns[1], "col2")
         self.assertEqual(len(parsed.columns), 2)
         self.assertEqual(parsed.table_name, "tab1")
+        self.assertEqual(len(parsed.conditions), 0)
         self.assertIsNone(parsed.offset)
         self.assertIsNone(parsed.order_type)
         self.assertEqual(len(parsed.order_columns), 0)
@@ -68,5 +69,14 @@ class SimpleSelectsTestCase(unittest.TestCase):
         self.assertEqual(parsed.order_columns[0], "col2")
         self.assertEqual(parsed.order_columns[1], "col1")
         self.assertEqual(parsed.order_type, "asc")
+
+    def test_where_clause_one_condition(self):
+        parsed = parse_select_query("select col1 from tab1 where col1 = 1")
+
+        self.assertEqual(len(parsed.conditions), 1)
+        self.assertEqual(parsed.conditions[0].operand_left, "col1")
+        self.assertEqual(parsed.conditions[0].operator, "=")
+        self.assertEqual(parsed.conditions[0].operand_right, "1")
+
 if __name__ == '__main__':
     unittest.main()

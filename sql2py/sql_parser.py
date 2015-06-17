@@ -1,8 +1,7 @@
 from pyparsing import Keyword, Word, alphas, alphanums, nums, Group, Literal, delimitedList, Forward, Optional, oneOf
 from queries import Select, Condition
 
-
-def parse_select_query(query):
+def build_select_grammar():
     select_grammar = Forward()
 
     select_keyword_token = Keyword("select", caseless=True)
@@ -32,6 +31,11 @@ def parse_select_query(query):
                      + Optional(where_expression).setResultsName("where")\
                      + Optional(order_by_token).setResultsName("order")\
                      + Optional(limit_token).setResultsName("limit")
+
+    return select_grammar
+
+def parse_select_query(query):
+    select_grammar = build_select_grammar()
 
     parsed_query = select_grammar.parseString(query)
 

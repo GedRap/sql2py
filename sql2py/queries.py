@@ -12,6 +12,14 @@ class Select:
         self.order_type = None
 
 
+class Insert:
+    def __init__(self):
+        self.table_name = None
+        self.columns = []
+
+        self.values = []
+
+
 class Condition:
     def __init__(self, operand_left, operator, operand_right):
         self.operand_left = operand_left

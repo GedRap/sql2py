@@ -1,5 +1,9 @@
-from pyparsing import Keyword, Word, alphas, alphanums, nums, Group, Literal, delimitedList, Forward, Optional, oneOf
-from queries import Select, Condition
+from pyparsing import Keyword, Word, alphas, alphanums, nums, Group, Literal, delimitedList, \
+    Forward, Optional, oneOf, printables, ParseException
+from queries import Select, Insert, Condition
+
+identifier_token = Word(alphanums + "_").setName("identifier")
+table_name_token = Word(alphanums + "_").setName("table_name")
 
 def build_select_grammar():
     select_grammar = Forward()
@@ -11,9 +15,7 @@ def build_select_grammar():
     where_keyword_token = Keyword("where", caseless=True)
     operators_tokens = oneOf("= != < > >= <=")
 
-    identifier_token = Word(alphanums + "_").setName("identifier")
     column_name_tokens = Group(delimitedList(identifier_token, ","))
-    table_name_token = Word(alphanums + "_").setName("table_name")
     order_by_token = order_by_keyword_token + column_name_tokens.setResultsName("order_by_cols")\
                      + Optional(
                         (Keyword("asc", caseless=True).setResultsName("order_by_type") |
@@ -33,6 +35,21 @@ def build_select_grammar():
                      + Optional(limit_token).setResultsName("limit")
 
     return select_grammar
+
+def build_insert_grammar():
+    insert_grammar = Forward()
+
+    insert_into_keyword_token = Keyword("insert into", caseless=True)
+    values_token = Keyword("values", caseless=True)
+
+    columns = Optional(Group(delimitedList(identifier_token, ",")))
+    values_list_token = Group(delimitedList(Word(alphanums + " "), ","))
+
+    insert_grammar << insert_into_keyword_token + table_name_token.setResultsName("table_name") \
+                      + Literal("(") + columns.setResultsName("columns") + Literal(")") + \
+                      values_token + Literal("(") + values_list_token.setResultsName("values_list") + Literal(")")
+
+    return insert_grammar
 
 def parse_select_query(query):
     select_grammar = build_select_grammar()
@@ -64,3 +81,18 @@ def parse_select_query(query):
             select_query.order_type = "asc"
 
     return select_query
+
+def parse_insert_query(query):
+    insert_grammar = build_insert_grammar()
+
+    parsed_query = insert_grammar.parseString(query)
+
+    insert_query = Insert()
+    insert_query.table_name = parsed_query.table_name
+    insert_query.columns = parsed_query.columns[0]
+    insert_query.values = parsed_query.values_list
+
+    if len(insert_query.columns) != len(insert_query.values):
+        raise ParseException("Number of columns should match the number of values")
+
+    return insert_query

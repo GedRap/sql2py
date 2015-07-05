@@ -20,6 +20,11 @@ class Insert:
         self.values = []
 
 
+class Delete:
+    def __init__(self):
+        self.table_name = None
+
+
 class Condition:
     def __init__(self, operand_left, operator, operand_right):
         self.operand_left = operand_left

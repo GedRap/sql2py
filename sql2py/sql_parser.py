@@ -1,6 +1,6 @@
 from pyparsing import Keyword, Word, alphas, alphanums, nums, Group, Literal, delimitedList, \
     Forward, Optional, oneOf, printables, ParseException
-from queries import Select, Insert, Condition
+from queries import Select, Insert, Condition, Delete
 
 identifier_token = Word(alphanums + "_").setName("identifier")
 table_name_token = Word(alphanums + "_").setName("table_name")
@@ -51,6 +51,15 @@ def build_insert_grammar():
 
     return insert_grammar
 
+def build_delete_grammar():
+    delete_grammar = Forward()
+
+    delete_from_keyword_token = Keyword("delete from", caseless=True)
+
+    delete_grammar << delete_from_keyword_token + table_name_token.setResultsName("table_name")
+
+    return delete_grammar
+
 def parse_select_query(query):
     select_grammar = build_select_grammar()
 
@@ -96,3 +105,13 @@ def parse_insert_query(query):
         raise ParseException("Number of columns should match the number of values")
 
     return insert_query
+
+def parse_delete_query(query):
+    delete_grammar = build_delete_grammar()
+
+    parsed_query = delete_grammar.parseString(query)
+
+    delete_query = Delete()
+    delete_query.table_name = parsed_query.table_name
+
+    return delete_query
